@@ -29,7 +29,7 @@ Our code works on Ubuntu 20.04.
 
 ## Installation
 ```
-git clone https://github.com/tianf-code/SAGS-SLAM.git --recursive
+git clone -b marigold-pose https://github.com/MoyangLi00/MDS-NeRF.git marigold-pose --recursive
 cd marigold-pose
 ```
 
@@ -43,19 +43,34 @@ conda activate MarigoldPose
 ## Run
 
 To estimate camera poses with Marigold, please use the command as
-
 ```
 python run.py --depth_est_model marigold --image_path data/scannet_scene0806/images --half_precision
 ```
 
 To estimate camera poses with LeReS for comparison, please use the command as
-
 ```
 python run.py --depth_est_model leres --image_path data/scannet_scene0806/images
 ```
 
+## Evaluate
+
+To compare the results of our method with Marigold and FrozenRecon with LeReS, run
+```
+python evaluate.py
+```
+
+Please change the following paths if you don't use the demo data provided by us
+```python
+# Change the path of results
+gt_pose_path = 'data/scannet_scene0806/pose'
+marigold_pose_path = 'outputs/scannet_scene0806/optimized/marigold/cam_pose'
+frozen_pose_path = 'outputs/scannet_scene0806/optimized/leres/cam_pose'
+opt_params_path = 'outputs/scannet_scene0806/optimized/marigold/optimized_params.pt'
+tum_format_traj_dir = 'outputs/scannet_scene0806/evaluation' # Path to save the tum format trajectory file
+```
+
 ## Code Writen by Us
-`run.py` and `analyze.py` are writen by us. In `run.py`, we utilize functions provided in the official code of Marigold and FrozenRecon, drawing inspiration from the implementation of their main functions. We have modified their code and integrated the two to work together.
+`run.py` and `evaluate.py` are writen by us. In `run.py`, we utilize functions provided in the official code of Marigold and FrozenRecon, drawing inspiration from the implementation of their main functions. We have modified their code and integrated the two to work together.
 
 
 ## Acknowledgment
