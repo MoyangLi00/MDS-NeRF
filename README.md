@@ -52,6 +52,14 @@ To estimate camera poses with LeReS for comparison, please use the command as
 python run.py --depth_est_model leres --image_path data/scannet_scene0806/images
 ```
 
+The main arguments for `run.py` are the following:
+
+| Parameter    | Type   | Description |
+| :---------:  | :--:   | :--------:  |
+| `--depth_est_model`   | `str`  | The type of model used for depth estimation (marigold or leres). |
+| `--image_path`      | `str` | The path to images for optimization. It should be accurate to the folder where the picture is located. |
+| `--half_precision`| `bool` | Only used with Marigold. Run with half-precision (16-bit float) to reduce GPU memory usage. |
+
 ## Evaluate
 
 To compare the results of our method with Marigold and FrozenRecon with LeReS, run
