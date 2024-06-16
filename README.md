@@ -1,52 +1,80 @@
-# MDS-NeRF: Neural Radiance Fields with Marigold Depth Supervision
-This is the official implementation for our 3DV project.
+<div align="center">
 
-<div align='center'>
-<img src="pipeline.png" height="230px">
+  <h1 align="center">MarigoldPose: Camera Pose Estimation with Marigold Monocular Depth</h1>
+  <img width="800" alt="image" src="figures/method_overview.png">
+
 </div>
 
-# Installation
-LERF follows the integration guidelines described [here](https://docs.nerf.studio/en/latest/developer_guides/new_methods.html) for custom methods within Nerfstudio. 
-### 0. Install Nerfstudio dependencies
-[Follow these instructions](https://docs.nerf.studio/en/latest/quickstart/installation.html) up to and including "tinycudann" to install dependencies and create an environment
-### 1. Clone this repo
-`https://github.com/MoyangLi00/nope-nerfacto.git`
-### 2. Install this repo as a python package
-Navigate to this folder and run `python -m pip install -e .`
+We implement an optimization pipeline (primarily based on [FrozenRecon](https://github.com/aim-uofa/FrozenRecon)) to estimate camera poses. We jointly optimize the scale (global scale) and offset (global offset) for each image, as well as camera poses, camera focal lengths, and point weights used for local alignment. A local alignment module is utilized to guide the optimization of parameters, and accelerate convergence. The loss function consists of color and depth warping losses, along with a regularization term to enforce the point weights close to 1.
 
-### 3. Run `ns-install-cli`
+## Prerequisite
 
-### Checking the install
-Run `ns-train -h`: you should see a list of "subcommands" with nope-nerfacto.
+### Pre-trained Checkpoints
+In this project, we use [Marigold](https://github.com/prs-eth/marigold) and [LeReS](https://github.com/aim-uofa/AdelaiDepth/tree/main) to estimate affine-invariant depth maps. LeReS is used just for comparison, as it is used in the FrozenRecon.
 
-# Using MDS-NeRF
-Now that nope-nerfacto is installed you can play with it! 
+Please download the checkpoint of Marigold with
+```
+bash scripts/download_marigold.sh
+```
+It usually takes a long time to decompress the checkpoint package.
 
-- Launch training with `ns-train nope-nerfacto --data <data_folder>`. This specifies a data folder to use. For more details, see [Nerfstudio documentation](https://docs.nerf.studio/en/latest/quickstart/first_nerf.html). 
-- Connect to the viewer by forwarding the viewer port (we use VSCode to do this), and click the link to `viewer.nerf.studio` provided in the output of the train script
+Please download the checkpoint of LeReS from [here](https://pan.baidu.com/s/1o2oVMiLRu770Fdpa65Pdbw?pwd=g3yi), and place it in `leres/res101.pth`.
 
-## Resolution
-The Nerfstudio viewer dynamically changes resolution to achieve a desired training throughput.
+### Demo Data
+We provide one demo data of ScanNet scene0806 in `data/scannet_scene0806`.
 
-**To increase resolution, pause training**. Rendering at high resolution (512 or above) can take a second or two, so we recommend rendering at 256px
+### System Requirements
+Our code works on Ubuntu 20.04.
 
+
+## Installation
+```
+git clone https://github.com/tianf-code/SAGS-SLAM.git --recursive
+cd marigold-pose
+```
+
+Setup the environment (Gaussian Splatting submodules are automatically built by following instructions).
+```
+conda env create -f environment.yaml
+conda activate MarigoldPose
+```
+
+
+## Run
+
+To estimate camera poses with Marigold, please use the command as
+
+```
+python run.py --depth_est_model marigold --image_path data/scannet_scene0806/images --half_precision
+```
+
+To estimate camera poses with LeReS for comparison, please use the command as
+
+```
+python run.py --depth_est_model leres --image_path data/scannet_scene0806/images
+```
+
+## Code Writen by Us
+`run.py` and `analyze.py` are writen by us. In `run.py`, we utilize functions provided in the official code of Marigold and FrozenRecon, drawing inspiration from the implementation of their main functions. We have modified their code and integrated the two to work together.
 
 
 ## Acknowledgment
 
-- Kudos to the [Nerfstudio](https://github.com/nerfstudio-project/) contributors for their amazing work:
+- Kudos to the [Marigold](https://github.com/prs-eth/marigold) and [FrozenRecon](https://github.com/aim-uofa/FrozenRecon) contributors for their amazing work:
 
 ```bibtex
-@inproceedings{nerfstudio,
-	title        = {Nerfstudio: A Modular Framework for Neural Radiance Field Development},
-	author       = {
-		Tancik, Matthew and Weber, Ethan and Ng, Evonne and Li, Ruilong and Yi, Brent
-		and Kerr, Justin and Wang, Terrance and Kristoffersen, Alexander and Austin,
-		Jake and Salahi, Kamyar and Ahuja, Abhik and McAllister, David and Kanazawa,
-		Angjoo
-	},
-	year         = 2023,
-	booktitle    = {ACM SIGGRAPH 2023 Conference Proceedings},
-	series       = {SIGGRAPH '23}
+@InProceedings{ke2023repurposing,
+      title={Repurposing Diffusion-Based Image Generators for Monocular Depth Estimation},
+      author={Bingxin Ke and Anton Obukhov and Shengyu Huang and Nando Metzger and Rodrigo Caye Daudt and Konrad Schindler},
+      booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+      year={2024}
+}
+
+@inproceedings{xu2023frozenrecon,
+  title={FrozenRecon: Pose-free 3D Scene Reconstruction with Frozen Depth Models},
+  author={Xu, Guangkai and Yin, Wei and Chen, Hao and Shen, Chunhua and Cheng, Kai and Zhao, Feng},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+  pages={9310--9320},
+  year={2023}
 }
 ```
